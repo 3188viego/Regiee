@@ -1,11 +1,15 @@
 package com.itheima.reggie.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.SetmealDTO;
 import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.entity.SetmealDish;
+import com.itheima.reggie.mapper.SetmealDishMapper;
+import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +17,11 @@ import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.itheima.reggie.controller.DishController.getList;
 
@@ -24,6 +32,12 @@ public class SetmealController {
 
     @Autowired
     SetmealService setmealService;
+
+    @Autowired
+    SetmealDishMapper setmealDishMapper;
+
+    @Autowired
+    SetmealDishService setmealDishService;
 
     /**
      * 分页查询
@@ -55,8 +69,8 @@ public class SetmealController {
 
     /**
      * 套餐保存
-     * @param setmealDTO
-     * @return
+     * @param setmealDTO 数据传输对象
+     * @return String
      */
     @PostMapping
     public R<String> save(@RequestBody SetmealDTO setmealDTO){
@@ -67,12 +81,53 @@ public class SetmealController {
     }
 
     /**
-     * getSetmealWithDihs
+     * getSetmealWithDish
      * @return R
      */
     @GetMapping("/{id}")
     public R<SetmealDTO> getMessageByID(@PathVariable Long id){
         SetmealDTO setmealDTO = setmealService.getSetmealWithDishById(id);
         return R.success(setmealDTO);
+    }
+
+    /**
+     * 修改套餐
+     * @param setmealDTO 数据传输对象
+     * @return String
+     */
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDTO setmealDTO, HttpServletRequest request){
+        //设置setmeal_id
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        setmealDishes=setmealDishes.stream().map(item->{
+            item.setSetmealId(setmealDTO.getId());
+            item.setUpdateTime(LocalDateTime.now());
+            item.setUpdateUser((Long) request.getSession().getAttribute("UID"));
+            return item;
+        }).collect(Collectors.toList());
+
+        //先将传入来的列表中没有的菜品删除掉
+        setmealDishMapper.deleteNotInIds(setmealDTO);
+        LambdaQueryWrapper<Setmeal> setmealLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        setmealLambdaQueryWrapper.eq(Setmeal::getId,setmealDTO.getId());
+        //更新setmeal
+        setmealService.update(setmealDTO,setmealLambdaQueryWrapper);
+        //更新setmeal_dish setmeal_sort默认值为0
+        setmealDishService.replace(setmealDishes);
+        return R.success("更新成功！");
+    }
+
+
+    /**
+     * 修改状态
+     * @param ids
+     * @param status
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public R<String> updateStatus(String ids,@PathVariable int status){
+        ArrayList<String> idList = getList(ids);
+        setmealService.updateStatusById(idList,status);
+        return R.success("状态修改成功！");
     }
 }

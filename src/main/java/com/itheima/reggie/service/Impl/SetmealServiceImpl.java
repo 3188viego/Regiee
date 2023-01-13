@@ -1,6 +1,7 @@
 package com.itheima.reggie.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.reggie.dto.SetmealDTO;
 import com.itheima.reggie.entity.Setmeal;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,5 +62,16 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         BeanUtils.copyProperties(setmeal,setmealDTO);
         setmealDTO.setSetmealDishes(list);
         return setmealDTO;
+    }
+
+
+    @Override
+    public void updateStatusById(ArrayList<String> idList, int status) {
+        LambdaUpdateWrapper<Setmeal> setmealLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        setmealLambdaUpdateWrapper.set(Setmeal::getStatus,status);
+        for (String s : idList) {
+            setmealLambdaUpdateWrapper.eq(Setmeal::getId,s).or();
+        }
+        this.update(setmealLambdaUpdateWrapper);
     }
 }

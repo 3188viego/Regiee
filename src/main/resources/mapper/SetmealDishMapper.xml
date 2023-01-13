@@ -1,0 +1,21 @@
+<?xml: verson="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.reggie.mapper.SetmealDishMapper">
+
+    <!-- void deleteNotInIds(@Param("setmealDTO")SetmealDTO setmealDTO);-->
+    <delete id="deleteNotInIds"  >
+        delete from setmeal_dish where dish_id not in
+               <foreach collection="setmealDTO.setmealDishes" item="dish" open="(" close=")" separator=",">
+                   #{dish.dishId}
+               </foreach>
+               and setmeal_id=#{setmealDTO.id}
+    </delete>
+
+    <!--&lt;!&ndash;void replace(@Param("setmealDTO")SetmealDTO setmealDTO);&ndash;&gt;-->
+    <!--<update id="replace">-->
+    <!--    replace into setmeal_dish values  (#{dish.id},#{dish.setmealId},#{dish.dishId},#{dish.name},#{dish.price},#{dish.copies},0,#{dish.createTime},#{dish.updateTime},#{dish.createUser},#{dish.updateUser},#{dish.isDeleted})-->
+    <!--</update>-->
+
+</mapper>

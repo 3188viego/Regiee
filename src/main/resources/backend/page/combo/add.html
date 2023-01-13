@@ -531,10 +531,16 @@
                 let prams = { ...this.ruleForm }
                 prams.price *= 100
                 prams.setmealDishes = this.dishTable.map((obj) => ({
+                  //自己修改的js代码
+                  id:obj.id,
                   copies: obj.copies,
                   dishId: obj.dishId,
                   name: obj.name,
                   price: obj.price,
+                  sort:obj.sort,
+                  createTime:obj.createTime,
+                  createUser:obj.createUser,
+                  isDeleted:obj.isDeleted
                 }))
                 prams.status = this.ruleForm ? 1 : 0
                 prams.categoryId = this.ruleForm.idType
