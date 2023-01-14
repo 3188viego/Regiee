@@ -21,11 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author viego
+ */
 @Service
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
 
     @Autowired
     DishFlavorService dishFlavorService;
+
+    @Autowired
+    DishFlavorMapper dishFlavorMapper;
     /**
      * 保存菜品的同时，保存口味
      * @param dishDTO
@@ -125,5 +131,18 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         dishLambdaQueryWrapper.eq(Dish::getCategoryId,categoryId);
         List<Dish> dishes = this.list(dishLambdaQueryWrapper);
         return dishes;
+    }
+
+    /**
+     * 更具dishId查询dish的Flavor
+     * @param dishID dishID
+     * @return dishFlavors
+     */
+    @Override
+    public List<DishFlavor> getDishFlavorByDishID(Long dishID) {
+        LambdaQueryWrapper<DishFlavor> dishFlavorLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        dishFlavorLambdaQueryWrapper.eq(DishFlavor::getDishId,dishID);
+        List<DishFlavor> dishFlavors = dishFlavorMapper.selectList(dishFlavorLambdaQueryWrapper);
+        return dishFlavors;
     }
 }

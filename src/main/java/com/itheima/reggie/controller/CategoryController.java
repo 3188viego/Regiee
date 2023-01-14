@@ -87,16 +87,31 @@ public class CategoryController {
         }
     }
 
+//    /**
+//     * 查询菜品分类列表
+//     * @param type 类型
+//     * @return 返回菜品分类
+//     */
+//    @GetMapping("list")
+//    public R<List<Category>> list(int type){
+//        log.info("已进入该方法");
+//        List<Category> categoryByType = categoryService.getCategoryByType(type);
+//        return R.success(categoryByType);
+//    }
     /**
      * 查询菜品分类列表
      * @param type 类型
      * @return 返回菜品分类
      */
     @GetMapping("list")
-    public R<List<Category>> list(int type){
-        List<Category> categoryByType = categoryService.getCategoryByType(type);
+    public R<List<Category>> list(String type){
+        log.info("已进入该方法");
+        if (type==null){
+            List<Category> list = categoryService.list();
+            return R.success(list);
+        }
+        List<Category> categoryByType = categoryService.getCategoryByType(Integer.parseInt(type));
         return R.success(categoryByType);
     }
-
 
 }

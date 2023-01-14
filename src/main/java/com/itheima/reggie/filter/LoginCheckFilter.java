@@ -39,6 +39,8 @@ public class LoginCheckFilter  implements Filter {
         String[] urls=new String[]{
                 "/employee/login",
                 "/employee/logout",
+                "/user/login",
+                "user/logout",
                 "/backend/**",
                 "/front/**"
         };
@@ -55,6 +57,7 @@ public class LoginCheckFilter  implements Filter {
             log.info("本次请求需要处理:{}",requestURI);
 //            String uid =(String) request.getSession().getAttribute("UID");
             Object uid = request.getSession().getAttribute("UID");
+
             if (uid!=null){
                 //用户已登录，直接放行
                 log.info("用户已登录，放行");

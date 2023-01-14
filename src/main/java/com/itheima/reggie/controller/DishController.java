@@ -2,6 +2,7 @@ package com.itheima.reggie.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -14,12 +15,14 @@ import com.itheima.reggie.entity.DishFlavor;
 import com.itheima.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j//打印日志的注解
 @RestController//前端控制器注解
@@ -112,15 +115,64 @@ public class DishController {
         return R.success("修改成功~");
     }
 
+//    /**
+//     * 第一个方案:当时还没有开发front
+//     * 根据CategoryId来查询菜品列表
+//     * @param categoryId
+//     * @return
+//     */
+//    @GetMapping("/list")
+//    public R<List<Dish>> getDishList(Long categoryId){
+//        List<Dish> dishes = dishService.getByCategoryId(categoryId);
+//        return R.success(dishes);
+//    }
+
+//    /**
+//     * 第二个方案：已经开发了front,但是，getDishFlavorByDish方法访问数据库的频率过高，为了优化，减少访问数据库的次数
+//     * 根据CategoryId来查询菜品列表
+//     * @param categoryId
+//     * @return
+//     */
+//    @GetMapping("/list")
+//    public R<List<DishDTO>> getDishList(Long categoryId){
+//        List<Dish> dishList = dishService.getByCategoryId(categoryId);
+//        List<DishDTO> dishDTOS = new ArrayList<>();
+//        for (Dish dish : dishList) {
+//            DishDTO dishDTO = new DishDTO();
+//            BeanUtils.copyProperties(dish,dishDTO);
+//            dishDTOS.add(dishDTO);
+//        }
+//        dishDTOS=dishDTOS.stream().map(item->{
+//            Long dishID = item.getId();
+//            List<DishFlavor> dishFlavors=dishService.getDishFlavorByDishID(dishID);
+//            item.setFlavors(dishFlavors);
+//            return item;
+//        }).collect(Collectors.toList());
+//        return R.success(dishDTOS);
+//    }
+
     /**
+     * 第二个方案：已经开发了front,但是，getDishFlavorByDish方法访问数据库的频率过高，为了优化，减少访问数据库的次数
      * 根据CategoryId来查询菜品列表
      * @param categoryId
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> getDishList(Long categoryId){
-        List<Dish> dishes = dishService.getByCategoryId(categoryId);
-        return R.success(dishes);
+    public R<List<DishDTO>> getDishList(Long categoryId){
+        List<Dish> dishList = dishService.getByCategoryId(categoryId);
+        List<DishDTO> dishDTOS = new ArrayList<>();
+        for (Dish dish : dishList) {
+            DishDTO dishDTO = new DishDTO();
+            BeanUtils.copyProperties(dish,dishDTO);
+            dishDTOS.add(dishDTO);
+        }
+        dishDTOS=dishDTOS.stream().map(item->{
+            Long dishID = item.getId();
+            List<DishFlavor> dishFlavors=dishService.getDishFlavorByDishID(dishID);
+            item.setFlavors(dishFlavors);
+            return item;
+        }).collect(Collectors.toList());
+        return R.success(dishDTOS);
     }
 
     public static ArrayList<String> getList(String ids){
