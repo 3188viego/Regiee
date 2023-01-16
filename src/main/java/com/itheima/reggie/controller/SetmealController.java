@@ -125,8 +125,8 @@ public class SetmealController {
 
     /**
      * 修改状态
-     * @param ids
-     * @param status
+     * @param ids ids
+     * @param status status
      * @return
      */
     @PostMapping("/status/{status}")
@@ -145,7 +145,7 @@ public class SetmealController {
     @GetMapping("/list")
     public R<List<SetmealDish>> getlist(String categoryId, int status){
         LambdaQueryWrapper<Setmeal> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        dishLambdaQueryWrapper.eq(Setmeal::getCategoryId,categoryId);
+        dishLambdaQueryWrapper.eq(Setmeal::getCategoryId,categoryId).eq(Setmeal::getStatus,status);
         Setmeal one = setmealService.getOne(dishLambdaQueryWrapper);
         LambdaQueryWrapper<SetmealDish> setmealDishLambdaQueryWrapper = new LambdaQueryWrapper<>();
         setmealDishLambdaQueryWrapper.eq(SetmealDish::getSetmealId,one.getId());
