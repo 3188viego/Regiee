@@ -153,6 +153,7 @@ public class DishController {
 
     /**
      * 第二个方案：已经开发了front,但是，getDishFlavorByDish方法访问数据库的频率过高，为了优化，减少访问数据库的次数
+     * 可以用Redis非关系型数据库来进行缓存优化
      * 根据CategoryId来查询菜品列表
      * @param categoryId
      * @return

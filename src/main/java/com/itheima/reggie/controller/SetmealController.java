@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.SetmealDTO;
+import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.entity.SetmealDish;
 import com.itheima.reggie.mapper.SetmealDishMapper;
+import com.itheima.reggie.service.DishService;
 import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,9 @@ public class SetmealController {
 
     @Autowired
     SetmealDishService setmealDishService;
+
+    @Autowired
+    DishService dishService;
 
     /**
      * 分页查询
@@ -129,5 +134,22 @@ public class SetmealController {
         ArrayList<String> idList = getList(ids);
         setmealService.updateStatusById(idList,status);
         return R.success("状态修改成功！");
+    }
+
+    /**
+     * 根据ID获取套餐中的菜品信息
+     * @param categoryId 套餐id
+     * @param status 状态
+     * @return Dishes
+     */
+    @GetMapping("/list")
+    public R<List<SetmealDish>> getlist(String categoryId, int status){
+        LambdaQueryWrapper<Setmeal> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        dishLambdaQueryWrapper.eq(Setmeal::getCategoryId,categoryId);
+        Setmeal one = setmealService.getOne(dishLambdaQueryWrapper);
+        LambdaQueryWrapper<SetmealDish> setmealDishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        setmealDishLambdaQueryWrapper.eq(SetmealDish::getSetmealId,one.getId());
+        List<SetmealDish> setmealDishes = setmealDishService.list(setmealDishLambdaQueryWrapper);
+        return R.success(setmealDishes);
     }
 }
